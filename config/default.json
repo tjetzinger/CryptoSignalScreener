@@ -1,0 +1,25 @@
+{
+    "App": {
+        "waitSeconds": 90,
+        "proxies": [
+            "https://crossorigin.me/",
+            "https://cors-anywhere.herokuapp.com/",
+            ""
+        ]
+    },
+    "Exchanges": [{
+        "name": "Bitfinex",
+        "id": "bitfinex2",
+        "rateLimit": 4000,
+        "markets": [
+          "BTC/USDT",
+          "ETH/USDT",
+          "XRP/USDT"
+        ]
+    }],
+    "Indicator": {
+        "RSI": {
+            "period": 14
+        }
+    }
+}

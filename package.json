@@ -1,0 +1,21 @@
+{
+  "name": "CryptoSignalScreener",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "as-table": "1.0.33",
+    "ccxt": "1.14.255",
+    "config": "1.30.0",
+    "ololog": "1.1.103",
+    "technicalindicators": "1.1.11",
+    "telegraf": "3.21.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
