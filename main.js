@@ -11,8 +11,16 @@ const ccxt = require ('ccxt')
 const arrayColumn = (arr, n) => arr.map(x => x[n])
     , sleep = ms => new Promise (resolve => setTimeout (resolve, ms));
 
+let rsiIsOversold = function(currentValue) {
+    return currentValue <= 30;
+}
+
+let rsiIsOverbought = function(currentValue) {
+    return currentValue >= 70;
+}
+
 let printUsage = function () {
-    log('Usage: node'.dim, process.argv[1].dim, '5m'.bright.red)
+    log('Usage: node'.dim, process.argv[1].dim, '5m'.bright.yellow, '10m'.bright.blue, '15m'.bright.green)
 }
 
 let fetchOHLCV = async function (exchange, market, timeframe) {
@@ -51,36 +59,40 @@ let fetchOHLCV = async function (exchange, market, timeframe) {
     }
 };
 
-let rsiAlert = function (ohlcv, market, exchangeName) {
+let rsiAlert = async function (exchange, market, exchangeConfig, timeframes) {
     try {
-        let closes = arrayColumn(ohlcv, 4)
-        let rsi = RSI.calculate({period: config.Indicator.RSI.period, values: closes, reversedInput: false}).pop()
+        let rsi = []
+        for(let i = 0; i < timeframes.length; i++) {
+            let ohlcv = await fetchOHLCV(exchange, market, timeframes[i])
+            let closes = arrayColumn(ohlcv, 4)
+            let result = RSI.calculate({period: config.Indicator.RSI.period, values: closes, reversedInput: false}).pop()
+            rsi.push(result)
+        }
+
         // TODO: Send alert only once
         // TODO: Examine on divergence
-        // TODO: Consider higher timeframe
-        if(rsi >= 70) {
-            log.bright.red(exchangeName, market, rsi)
-            telegram.sendAlert('Short Market: ' + market + ' - Exchange: ' + exchangeName + ' - RSI: ' + rsi)
-        } else if(rsi <= 30) {
-            log.bright.green(exchangeName, market, rsi)
-            telegram.sendAlert('Long Market: ' + market + ' - Exchange: ' + exchangeName + ' - RSI: ' + rsi)
+        if(rsi.every(rsiIsOverbought)) {
+            log.bright.red(exchangeConfig.name, market, timeframes, rsi)
+            telegram.sendAlert('Overbought: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' ' + rsi)
+        } else if(rsi.every(rsiIsOversold)) {
+            log.bright.green(exchangeConfig.name, market, timeframes, rsi)
+            telegram.sendAlert('Oversold: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' ' + rsi)
         } else {
-            log.dim(exchangeName, market, rsi)
+            log.dim(exchangeConfig.name, market, timeframes, rsi)
         }
     } catch (e) {
         throw e; // rethrow all exceptions
     }
 };
 
-let scanExchange = async function (exchangeConfig, timeframe) {
+let scanExchange = async function (exchangeConfig, timeframes) {
     let exchange = new ccxt[exchangeConfig.id]({ rateLimit: exchangeConfig.rateLimit, enableRateLimit: true })
     let markets = exchangeConfig.markets
 
     // basic round-robin proxy scheduler
     for(let i = 0; i < markets.length; i = ++i % markets.length) {
         try {
-            let ohlcv = await fetchOHLCV(exchange, markets[i], timeframe)
-            rsiAlert(ohlcv, markets[i], exchangeConfig.name)
+            await rsiAlert(exchange, markets[i], exchangeConfig, timeframes)
         } catch (e) {
             log.bright.red(e.constructor.name, e.message)
             return
@@ -89,13 +101,12 @@ let scanExchange = async function (exchangeConfig, timeframe) {
 };
 
 (async function main () {
-    if (process.argv.length == 3) {
-        let args = process.argv.slice(2)
-        let timeframe = args[0]
+    if (process.argv.length >= 3) {
+        let timeframes = process.argv.slice(2)
         for(let i=0; i < config.Exchanges.length; i++) {
             // TODO: Scan asynchrone
             // TODO: Exception handling
-            await scanExchange(config.Exchanges[i], timeframe)
+            await scanExchange(config.Exchanges[i], timeframes)
         }
     }  else {
         printUsage()

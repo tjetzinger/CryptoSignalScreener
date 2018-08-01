@@ -15,6 +15,5 @@ module.exports = {
     sendAlert: function(message) {
         // TODO: Remove chat id
         bot.telegram.sendMessage(291564174, message)
-        //bot.telegram.sendMessage(581929366, message)
     }
 };
