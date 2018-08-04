@@ -1,5 +1,5 @@
 const Telegraf = require ('telegraf')
-    , storage = require('./storage')
+    , storage = require('./subscribers')
     , log  = require ('ololog').configure({ locate: false, time:true });
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
@@ -25,6 +25,5 @@ module.exports = {
                 })
             })
         })
-
     }
 };

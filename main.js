@@ -2,7 +2,7 @@
 
 const ccxt = require ('ccxt')
     , telegram = require('./telegram')
-    , storage = require('./storage')
+    , storage = require('./subscribers')
     , config = require('config')
     , RSI = require ('technicalindicators').RSI
     , log  = require ('ololog').configure ({ locate: false, time: true })
