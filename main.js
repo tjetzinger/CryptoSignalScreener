@@ -2,9 +2,10 @@
 
 const ccxt = require ('ccxt')
     , telegram = require('./telegram')
+    , storage = require('./storage')
     , config = require('config')
     , RSI = require ('technicalindicators').RSI
-    , log  = require ('ololog').configure ({ locate: false })
+    , log  = require ('ololog').configure ({ locate: false, time: true })
     , ansi = require ('ansicolor').nice
     , asTable = require ('as-table').configure ({ delimiter: ' | ' });
 
@@ -20,7 +21,7 @@ let rsiIsOverbought = function(currentValue) {
 }
 
 let printUsage = function () {
-    log('Usage: node'.dim, process.argv[1].dim, '5m'.bright.yellow, '10m'.bright.blue, '15m'.bright.green)
+    log.dim.info('Usage: node', process.argv[1], '5m'.bright.yellow, '10m'.bright.blue, '15m'.bright.green)
 }
 
 let fetchOHLCV = async function (exchange, market, timeframe) {
@@ -35,15 +36,15 @@ let fetchOHLCV = async function (exchange, market, timeframe) {
         } catch (e) { // rotate proxies in case of connectivity errors, catch all other exceptions
             // swallow connectivity exceptions only
             if (e instanceof ccxt.DDoSProtection || e.message.includes('ECONNRESET')) {
-                log.bright.yellow(exchangeName, market, '[DDoS Protection Error] ' + e.message)
+                log.bright.yellow.warn(exchangeName, market, '[DDoS Protection Error] ' + e.message)
             } else if (e instanceof ccxt.RequestTimeout) {
-                log.bright.yellow(exchangeName, market, '[Timeout Error] ' + e.message)
+                log.bright.yellow.warn(exchangeName, market, '[Timeout Error] ' + e.message)
             } else if (e instanceof ccxt.AuthenticationError) {
-                log.bright.yellow(exchangeName, market, '[Authentication Error] ' + e.message)
+                log.bright.yellow.warn(exchangeName, market, '[Authentication Error] ' + e.message)
             } else if (e instanceof ccxt.ExchangeNotAvailable) {
-                log.bright.yellow(exchangeName, market, '[Exchange Not Available Error] ' + e.message)
+                log.bright.yellow.warn(exchangeName, market, '[Exchange Not Available Error] ' + e.message)
             } else if (e instanceof ccxt.ExchangeError) {
-                log.bright.yellow(exchangeName, market, '[Exchange Error] ' + e.message)
+                log.bright.yellow.warn(exchangeName, market, '[Exchange Error] ' + e.message)
             } else {
                 throw e; // rethrow all other exceptions
             }
@@ -69,10 +70,10 @@ let rsiAlert = async function (exchange, market, exchangeConfig, timeframes) {
             rsi.push(result)
         }
 
-        // TODO: Send alert only once
+        // TODO: Send alerts only once
         // TODO: Examine on divergence
         if(rsi.every(rsiIsOverbought)) {
-            log.bright.red(exchangeConfig.name, market, timeframes, rsi)
+            log.bright.magenta(exchangeConfig.name, market, timeframes, rsi)
             telegram.sendAlert('Overbought: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' ' + rsi)
         } else if(rsi.every(rsiIsOversold)) {
             log.bright.green(exchangeConfig.name, market, timeframes, rsi)
@@ -94,18 +95,19 @@ let scanExchange = async function (exchangeConfig, timeframes) {
         try {
             await rsiAlert(exchange, markets[i], exchangeConfig, timeframes)
         } catch (e) {
-            log.bright.red(e.constructor.name, e.message)
+            log.bright.red.error(e.constructor.name, e.message)
             return
         }
     }
 };
 
 (async function main () {
+    await storage.init()
     if (process.argv.length >= 3) {
         let timeframes = process.argv.slice(2)
         for(let i=0; i < config.Exchanges.length; i++) {
-            // TODO: Scan asynchrone
-            // TODO: Exception handling
+            // TODO: Scan a variaty of exchanges and markets asynchrone
+            // TODO: Improve exception handling
             await scanExchange(config.Exchanges[i], timeframes)
         }
     }  else {
