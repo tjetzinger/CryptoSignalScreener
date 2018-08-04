@@ -1,9 +1,10 @@
 const storage = require('node-persist')
+    , config = require('config')
     , log  = require ('ololog').configure ({ locate: false, time: true });
 
 module.exports = {
     init: async function() {
-        await storage.init({ dir: 'data/subscriber' });
+        await storage.init({ dir: config.App.dirSubscriberStorage });
     },
     addSubscriber: async function(newSubscriber) {
         await storage.set(newSubscriber.id.toString(), newSubscriber)

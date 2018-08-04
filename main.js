@@ -13,11 +13,11 @@ const arrayColumn = (arr, n) => arr.map(x => x[n])
     , sleep = ms => new Promise (resolve => setTimeout (resolve, ms));
 
 let rsiIsOversold = function(currentValue) {
-    return currentValue <= 30;
+    return currentValue <= config.Indicator.RSI.low;
 }
 
 let rsiIsOverbought = function(currentValue) {
-    return currentValue >= 70;
+    return currentValue >= config.Indicator.RSI.high
 }
 
 let printUsage = function () {
@@ -50,8 +50,8 @@ let fetchOHLCV = async function (exchange, market, timeframe) {
             }
 
             if(currentProxy == proxies.length-1) {
-                log.bright.blue('Waiting for', waitSeconds, 'seconds')
-                await sleep(waitSeconds * 1000)
+                log.bright.blue('Waiting for', config.App.waitSeconds, 'seconds')
+                await sleep(config.App.waitSeconds * 1000)
             }
 
             // retry next proxy in round-robin fashion in case of error

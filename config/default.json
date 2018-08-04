@@ -5,7 +5,9 @@
             "https://crossorigin.me/",
             "https://cors-anywhere.herokuapp.com/",
             ""
-        ]
+        ],
+        "dirSubscriberStorage": "data/subscriber",
+        "dirMessageLock": "data/messaging"
     },
     "Exchanges": [{
         "name": "Bitfinex",
@@ -19,7 +21,9 @@
     }],
     "Indicator": {
         "RSI": {
-            "period": 14
+            "period": 14,
+            "high": 70,
+            "low": 30
         }
     }
 }
