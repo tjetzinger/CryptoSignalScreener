@@ -1,3 +1,5 @@
+"use strict";
+
 const storage = require('node-persist')
     , config = require('config')
     , log  = require ('ololog').configure ({ locate: false, time: true });

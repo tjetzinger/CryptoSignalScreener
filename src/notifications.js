@@ -1,3 +1,5 @@
+"use strict";
+
 //TODO: Twitter Message
 
 const telegram = require('./telegram')

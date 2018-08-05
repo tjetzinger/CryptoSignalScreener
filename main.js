@@ -3,8 +3,8 @@
 "use strict";
 
 const ccxt = require ('ccxt')
-    , notification = require('./notifications')
-    , storage = require('./subscribers')
+    , notification = require('./src/notifications')
+    , storage = require('./src/subscribers')
     , config = require('config')
     , RSI = require ('technicalindicators').RSI
     , log  = require ('ololog').configure ({ locate: false, time: true })

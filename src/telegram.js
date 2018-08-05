@@ -1,3 +1,5 @@
+"use strict";
+
 const Telegraf = require ('telegraf')
     , storage = require('./subscribers')
     , log  = require ('ololog').configure({ locate: false, time:true })
