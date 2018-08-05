@@ -4,7 +4,7 @@
 
 const ccxt = require ('ccxt')
     , notification = require('./src/notifications')
-    , storage = require('./src/subscribers')
+    , subscribers = require('./src/subscribers')
     , config = require('config')
     , RSI = require ('technicalindicators').RSI
     , log  = require ('ololog').configure ({ locate: false, time: true })
@@ -103,7 +103,8 @@ let scanExchange = async function (exchangeConfig, timeframes) {
 };
 
 (async function main () {
-    await storage.init()
+    await subscribers.init()
+    await notification.init()
     if (process.argv.length >= 3) {
         let timeframes = process.argv.slice(2)
         for(let i=0; i < config.Exchanges.length; i++) {
