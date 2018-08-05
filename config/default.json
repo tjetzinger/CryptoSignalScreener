@@ -1,29 +1,46 @@
 {
-    "App": {
-        "waitSeconds": 90,
-        "proxies": [
-            "https://crossorigin.me/",
-            "https://cors-anywhere.herokuapp.com/",
-            ""
-        ],
-        "dirSubscriberStorage": "data/subscriber",
-        "dirMessageLock": "data/messaging"
-    },
-    "Exchanges": [{
-        "name": "Bitfinex",
-        "id": "bitfinex2",
-        "rateLimit": 4000,
-        "markets": [
-          "BTC/USDT",
-          "ETH/USDT",
-          "XRP/USDT"
-        ]
-    }],
-    "Indicator": {
-        "RSI": {
-            "period": 14,
-            "high": 70,
-            "low": 30
-        }
+  "App": {
+    "waitSeconds": 90,
+    "proxies": [
+      "https://crossorigin.me/",
+      "https://cors-anywhere.herokuapp.com/",
+      ""
+    ],
+    "dirSubscriberStorage": "data/subscriber",
+    "dirMessageLock": "data/messaging",
+    "lockPeriod": 3,
+    "Timeframes": {
+      "1m": 1,
+      "5m": 5,
+      "15m": 15,
+      "30m": 30,
+      "1h": 60,
+      "3h": 180,
+      "6h": 360,
+      "12h": 720,
+      "1d": 1440,
+      "1w": 10080,
+      "2w": 20160,
+      "1M": 40320
     }
+  },
+  "Exchanges": [
+    {
+      "name": "Bitfinex",
+      "id": "bitfinex2",
+      "rateLimit": 4000,
+      "markets": [
+        "BTC/USDT",
+        "ETH/USDT",
+        "XRP/USDT"
+      ]
+    }
+  ],
+  "Indicator": {
+    "RSI": {
+      "period": 14,
+      "high": 70,
+      "low": 30
+    }
+  }
 }

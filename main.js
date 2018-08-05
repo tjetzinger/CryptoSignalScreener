@@ -1,13 +1,15 @@
+// TODO: RSI divergence strategy
+
 "use strict";
 
 const ccxt = require ('ccxt')
-    , telegram = require('./telegram')
+    , notification = require('./notifications')
     , storage = require('./subscribers')
     , config = require('config')
     , RSI = require ('technicalindicators').RSI
     , log  = require ('ololog').configure ({ locate: false, time: true })
     , ansi = require ('ansicolor').nice
-    , asTable = require ('as-table').configure ({ delimiter: ' | ' });
+    //, asTable = require ('as-table').configure ({ delimiter: ' | ' });
 
 const arrayColumn = (arr, n) => arr.map(x => x[n])
     , sleep = ms => new Promise (resolve => setTimeout (resolve, ms));
@@ -70,16 +72,15 @@ let rsiAlert = async function (exchange, market, exchangeConfig, timeframes) {
             rsi.push(result)
         }
 
-        // TODO: Send alerts only once
-        // TODO: Examine on divergence
+        let timeframe = timeframes.slice(-1)[0]
         if(rsi.every(rsiIsOverbought)) {
-            log.bright.magenta(exchangeConfig.name, market, timeframes, rsi)
-            telegram.sendAlert('Overbought: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' ' + rsi)
+            log.bright.magenta(exchangeConfig.name, market, timeframes, 'RSI:', rsi)
+            notification.sendNotifications(market, timeframe, 'Overbought: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' RSI: ' + rsi)
         } else if(rsi.every(rsiIsOversold)) {
-            log.bright.green(exchangeConfig.name, market, timeframes, rsi)
-            telegram.sendAlert('Oversold: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' ' + rsi)
+            log.bright.green(exchangeConfig.name, market, timeframes, 'RSI:', rsi)
+            notification.sendNotifications(market, timeframe, 'Oversold: ' + market + ' - Exchange: ' + exchangeConfig.name + ' ' + timeframes + ' RSI: ' + rsi)
         } else {
-            log.dim(exchangeConfig.name, market, timeframes, rsi)
+            log.dim(exchangeConfig.name, market, timeframes, 'RSI:', rsi)
         }
     } catch (e) {
         throw e; // rethrow all exceptions
